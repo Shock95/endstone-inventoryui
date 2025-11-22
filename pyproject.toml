@@ -1,0 +1,23 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "endstone-inventoryui"
+version = "1.0.1"
+dependencies = [
+    "bedrock-protocol-packets"
+]
+authors = [
+    { name = "Shock95", email = "" },
+]
+description = "Inventory UI plugin for Endstone servers"
+readme = "README.md"
+license = { file = "LICENSE" }
+keywords = ["endstone", "plugin"]
+
+[project.urls]
+Homepage = "https://github.com/Shock95/endstone-inventoryui"
+
+[project.entry-points."endstone"]
+inventoryui = "endstone_inventoryui:InventoryUIPlugin"
