@@ -81,8 +81,11 @@ class EventListener:
                 pk.deserialize(event.payload)
                 for req_data in pk.request.request_data:
                     for action in req_data.request_actions:
-                        if action.action_type == ItemStackRequestActionType.Take or action.action_type == ItemStackRequestActionType.Place:
+                        if action.action_type in (ItemStackRequestActionType.Take, ItemStackRequestActionType.Place):
                             slot = action.action_data.source.slot
+                            source_id = action.action_data.source.container.container_enum
+                            if source_id != 7:  # LEVEL_ENTITY
+                                return
                             if menu.listener is not None:
                                 item_clicked = menu.inventory.get_item(slot)
                                 menu.listener(player, slot, item_clicked, menu.inventory)
