@@ -32,6 +32,13 @@ class MenuType(Enum):
         block_actor_id="Hopper",
         container_size=5
     )
+    DISPENSER = Value(
+        is_pair=False,
+        block_id="minecraft:dispenser",
+        container_type=0x6,
+        block_actor_id="Dispenser",
+        container_size=9
+    )
 
     @property
     def is_pair(self) -> bool:
