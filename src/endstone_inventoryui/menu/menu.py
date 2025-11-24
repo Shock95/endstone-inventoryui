@@ -13,7 +13,7 @@ class Menu:
     def __init__(self, type: MenuType, name: str = ""):
         self.name = name
         self.type = type
-        self._inventory: UIInventory = UIInventory(type.get_container_size(),
+        self._inventory: UIInventory = UIInventory(type.container_size,
                                                    slot_updated=self._on_slot_changed)
         self.listener: Optional[Callable[[Player, int, ItemStack, UIInventory], None]] = None
         self.open_listener: Optional[Callable[[Player], None]] = None

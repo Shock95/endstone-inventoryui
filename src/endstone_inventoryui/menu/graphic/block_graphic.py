@@ -17,12 +17,12 @@ class BlockGraphic(Graphic):
         self.pos = pos
 
     def send(self, player: Player):
-        send_block(player, self.menu.type.get_block_id(), self.pos)
+        send_block(player, self.menu.type.block_id, self.pos)
 
     def send_data(self, player: Player):
         tag = CompoundTag()
         pos = self.pos
-        tag.set("id", self.menu.type.get_block_actor_id())
+        tag.set("id", self.menu.type.block_actor_id)
         tag.set("CustomName", self.menu.name)
         pk = BlockActorDataPacket(NetworkBlockPosition(pos.x, pos.y, pos.z), tag)
         player.send_packet(pk.get_packet_id(), pk.serialize())
@@ -30,7 +30,7 @@ class BlockGraphic(Graphic):
     def open(self, player: Player):
         from endstone_inventoryui.manager import Session
         pos = NetworkBlockPosition(self.pos.x, self.pos.y, self.pos.z)
-        pk = ContainerOpenPacket(Session.CONTAINER_ID, self.menu.type.get_container_type(), pos)
+        pk = ContainerOpenPacket(Session.CONTAINER_ID, self.menu.type.container_type, pos)
         player.send_packet(pk.get_packet_id(), pk.serialize())
 
     def remove(self, player: Player):

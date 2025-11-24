@@ -1,46 +1,58 @@
+from dataclasses import dataclass
 from enum import Enum
 
 
 class MenuType(Enum):
-    CHEST = 0
-    DOUBLE_CHEST = 1
-    HOPPER = 2
+    @dataclass(frozen=True)
+    class Value:
+        is_pair: bool
+        block_id: str
+        container_type: int
+        block_actor_id: str
+        container_size: int
 
+    CHEST = Value(
+        is_pair=False,
+        block_id="minecraft:chest",
+        container_type=0x0,
+        block_actor_id="Chest",
+        container_size=27
+    )
+    DOUBLE_CHEST = Value(
+        is_pair=True,
+        block_id="minecraft:chest",
+        container_type=0x0,
+        block_actor_id="Chest",
+        container_size=54
+    )
+    HOPPER = Value(
+        is_pair=False,
+        block_id="minecraft:hopper",
+        container_type=0x8,
+        block_actor_id="Hopper",
+        container_size=5
+    )
+
+    @property
     def is_pair(self) -> bool:
-        match self:
-            case MenuType.CHEST:
-                return False
-            case MenuType.DOUBLE_CHEST:
-                return True
-            case MenuType.HOPPER:
-                return False
+        return self.value.is_pair
 
-    def get_block_id(self) -> str:
-        match self:
-            case MenuType.CHEST | MenuType.DOUBLE_CHEST:
-                return "minecraft:chest"
-            case MenuType.HOPPER:
-                return "minecraft:hopper"
+    @property
+    def block_id(self) -> str:
+        """Get the Minecraft block ID for this menu type."""
+        return self.value.block_id
 
-    def get_container_type(self) -> int:
-        match self:
-            case MenuType.CHEST | MenuType.DOUBLE_CHEST:
-                return 0x0
-            case MenuType.HOPPER:
-                return 0x8
+    @property
+    def container_type(self) -> int:
+        """Get the container type ID for this menu type."""
+        return self.value.container_type
 
-    def get_block_actor_id(self):
-        match self:
-            case MenuType.CHEST | MenuType.DOUBLE_CHEST:
-                return "Chest"
-            case MenuType.HOPPER:
-                return "Hopper"
+    @property
+    def block_actor_id(self) -> str:
+        """Get the block actor ID for this menu type."""
+        return self.value.block_actor_id
 
-    def get_container_size(self) -> int:
-        match self:
-            case MenuType.CHEST:
-                return 27
-            case MenuType.DOUBLE_CHEST:
-                return 54
-            case MenuType.HOPPER:
-                return 5
+    @property
+    def container_size(self) -> int:
+        """Get the container size (number of slots) for this menu type."""
+        return self.value.container_size

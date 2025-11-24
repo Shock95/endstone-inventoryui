@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING
 
 from bedrock_protocol.packets.types import BlockPos
 from endstone import Player
+
 from endstone_inventoryui.menu.graphic.block_graphic import BlockGraphic
 from endstone_inventoryui.menu.graphic.block_pair_graphic import BlockPairGraphic
 from endstone_inventoryui.menu.graphic.graphic import Graphic
@@ -46,7 +47,7 @@ class Session:
         self.open_attempts = 0
         self.ack_timestamp = 0
         pos = get_block_behind(self.player, 2)
-        self.graphic = BlockPairGraphic(self.menu, pos) if self.menu.type.is_pair() else BlockGraphic(self.menu, pos)
+        self.graphic = BlockPairGraphic(self.menu, pos) if self.menu.type.is_pair else BlockGraphic(self.menu, pos)
         self.send_graphic()
 
     def send_graphic(self):
