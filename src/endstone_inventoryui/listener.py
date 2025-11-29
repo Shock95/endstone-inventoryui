@@ -55,8 +55,8 @@ class EventListener:
                 #    return
 
                 if pk.container_id == Session.CONTAINER_ID:
-                    if session.menu.close_listener is not None:
-                        session.menu.close_listener(player)
+                    if session.menu._close_listener is not None:
+                        session.menu._close_listener(player)
                     if session.pending:
                         if session.state != Session.State.CLOSING:
                             session.close()
@@ -70,8 +70,8 @@ class EventListener:
             if session is not None:
                 if session.state == Session.State.OPENING:
                     session.update_state(Session.State.OPEN)
-                    if session.menu.open_listener is not None:
-                        session.menu.open_listener(player)
+                    if session.menu._open_listener is not None:
+                        session.menu._open_listener(player)
 
         elif packet_id == MinecraftPacketIds.ItemStackRequest:
             session = find_session(player)
@@ -86,9 +86,9 @@ class EventListener:
                             source_id = action.action_data.source.container.container_enum
                             if source_id != 7:  # LEVEL_ENTITY
                                 return
-                            if menu.listener is not None:
+                            if menu._listener is not None:
                                 item_clicked = menu.inventory.get_item(slot)
-                                menu.listener(player, slot, item_clicked, menu.inventory)
+                                menu._listener(player, slot, item_clicked, menu.inventory)
                                 return
 
     @event_handler
