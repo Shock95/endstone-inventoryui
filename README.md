@@ -9,6 +9,7 @@ Read-only Inventory UI plugin for Endstone
 Enum for menu container types:
 - `MenuType.CHEST` - Single chest (27 slots)
 - `MenuType.DOUBLE_CHEST` - Double chest (54 slots)
+- `MenuType.DISPENSER` - Dispenser (9 slots)
 - `MenuType.HOPPER` - Hopper (5 slots)
 
 ### Menu
