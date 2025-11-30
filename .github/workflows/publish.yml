@@ -12,7 +12,7 @@ permissions:
 
 jobs:
   publish:
-    if: github.repository == 'EndstoneMC/python-plugin-template'
+    if: github.repository == 'Shock95/endstone-inventoryui'
     runs-on: ubuntu-latest
     environment: pypi
     permissions:
