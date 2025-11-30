@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING
 
 from bedrock_protocol.packets.types import BlockPos
 from endstone import Player
+
 from endstone_inventoryui.menu.graphic.block_graphic import BlockGraphic
 from endstone_inventoryui.menu.graphic.block_pair_graphic import BlockPairGraphic
 from endstone_inventoryui.menu.graphic.graphic import Graphic
@@ -34,7 +35,7 @@ class Session:
 
     def __init__(self, player: Player):
         self.player: Player = player
-        self.menu: 'Menu | None' = None
+        self._menu: 'Menu | None' = None
         self.state: Session.State = self.State.NONE
         self.graphic: Graphic | None = None
         self.block_pos: list[BlockPos] = []
@@ -42,11 +43,23 @@ class Session:
         self.ack_timestamp = 0
         self.pending: deque['Menu'] = deque()
 
+    @property
+    def menu(self) -> 'Menu | None':
+        return self._menu
+
+    @menu.setter
+    def menu(self, value: 'Menu | None') -> None:
+        if self._menu is not None:
+            self._menu._remove_session(self)
+        self._menu = value
+        if value is not None:
+            value._add_session(self)
+
     def send_menu(self):
         self.open_attempts = 0
         self.ack_timestamp = 0
         pos = get_block_behind(self.player, 2)
-        self.graphic = BlockPairGraphic(self.menu, pos) if self.menu.type.is_pair() else BlockGraphic(self.menu, pos)
+        self.graphic = BlockPairGraphic(self.menu, pos) if self.menu.type.is_pair else BlockGraphic(self.menu, pos)
         self.send_graphic()
 
     def send_graphic(self):
@@ -80,7 +93,8 @@ class Session:
 
     def close(self):
         self.state = self.State.CLOSING
-        self.graphic.remove(self.player)
+        if self.graphic is not None:
+            self.graphic.remove(self.player)
 
     def update_state(self, state: State):
         self.state = state

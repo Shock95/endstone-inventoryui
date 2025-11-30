@@ -28,9 +28,7 @@ def create_session(player: Player) -> 'Session':
 def close_session(player: Player):
     global sessions
     if player.unique_id in sessions:
+        session = sessions[player.unique_id]
+        if session.menu is not None:
+            session.menu._remove_session(session)
         del sessions[player.unique_id]
-
-
-def get_all_sessions():
-    global sessions
-    return sessions.values()

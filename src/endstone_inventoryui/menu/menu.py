@@ -1,27 +1,39 @@
-from typing import Optional, Callable
+from typing import Optional, Callable, TYPE_CHECKING
 
 from endstone import Player
 from endstone._internal.endstone_python import ItemStack
 
-from endstone_inventoryui.manager.player_manager import find_session, create_session, get_all_sessions
+from endstone_inventoryui.manager.player_manager import find_session, create_session
 from endstone_inventoryui.menu.inventory import UIInventory
 from endstone_inventoryui.menu.menu_type import MenuType
+
+if TYPE_CHECKING:
+    from endstone_inventoryui.manager import Session
 
 
 class Menu:
 
     def __init__(self, type: MenuType, name: str = ""):
-        self.name = name
-        self.type = type
-        self._inventory: UIInventory = UIInventory(type.get_container_size(),
+        self._name = name
+        self._type = type
+        self._inventory: UIInventory = UIInventory(type.container_size,
                                                    slot_updated=self._on_slot_changed)
-        self.listener: Optional[Callable[[Player, int, ItemStack, UIInventory], None]] = None
-        self.open_listener: Optional[Callable[[Player], None]] = None
-        self.close_listener: Optional[Callable[[Player], None]] = None
+        self._listener: Optional[Callable[[Player, int, ItemStack, UIInventory], None]] = None
+        self._open_listener: Optional[Callable[[Player], None]] = None
+        self._close_listener: Optional[Callable[[Player], None]] = None
+        self._sessions: set['Session'] = set()
 
     @property
     def inventory(self):
         return self._inventory
+
+    @property
+    def name(self):
+        return self._name
+
+    @property
+    def type(self):
+        return self._type
 
     def set_name(self, name: str):
         """
@@ -30,10 +42,10 @@ class Menu:
         Args:
             name: The new display name to show at the top of the menu.
         """
-        self.name = name
+        self._name = name
 
     def set_listener(self, listener: Callable[[Player, int, ItemStack, UIInventory], None]):
-        self.listener = listener
+        self._listener = listener
 
     def set_open_listener(self, listener: Callable[[Player], None]):
         """
@@ -43,7 +55,7 @@ class Menu:
             listener: A function called when a player opens this menu.
         """
 
-        self.open_listener = listener
+        self._open_listener = listener
 
     def set_close_listener(self, listener: Callable[[Player], None]):
         """
@@ -52,7 +64,7 @@ class Menu:
         Args:
             listener: A function called when a player closes this menu.
         """
-        self.close_listener = listener
+        self._close_listener = listener
 
     def send_to(self, player: Player):
         """
@@ -88,12 +100,34 @@ class Menu:
                 return True
         return False
 
+    def close_all(self) -> None:
+        """
+        Close this menu for all players currently viewing it.
+        """
+        from endstone_inventoryui.manager import Session
+        for s in self._sessions:
+            if s.state != Session.State.CLOSING:
+                s.close()
+
+    def get_viewers(self) -> list[Player]:
+        """
+        Get a list of players who currently have this menu open.
+        """
+        from endstone_inventoryui.manager import Session
+        players = []
+        for s in self._sessions:
+            if s.state == Session.State.OPEN:
+                players.append(s.player)
+        return players
+
     def _on_slot_changed(self, slot: int) -> None:
         from endstone_inventoryui.manager import Session
-        sessions = get_all_sessions()
-        for session in sessions:
-            if session.menu is not self:
-                return
-            if session.state != Session.State.OPEN:
-                return
-            session.update_slot(slot)
+        for session in self._sessions:
+            if session.state == Session.State.OPEN:
+                session.update_slot(slot)
+
+    def _add_session(self, session: 'Session') -> None:
+        self._sessions.add(session)
+
+    def _remove_session(self, session: 'Session') -> None:
+        self._sessions.discard(session)

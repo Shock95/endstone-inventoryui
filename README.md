@@ -27,6 +27,8 @@ Menu(type: MenuType, name: str = "")
 - `set_close_listener(listener)` - Set menu close callback: `(player: Player) -> None`
 - `send_to(player: Player)` - Display menu to player
 - `close(player: Player) -> bool` - Close this menu for player
+- `close_all() -> None` - Close this menu for all players currently viewing it
+- `get_viewers() -> list[Player]` - Get a list of players who currently have this menu open
 
 ## Usage
 Check out the [example plugin](./example)
