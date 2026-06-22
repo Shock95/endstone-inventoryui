@@ -6,7 +6,7 @@ build-backend = "hatchling.build"
 name = "endstone-inventoryui"
 version = "1.1.1"
 dependencies = [
-    "bedrock-protocol-packets-ng==0.0.8"
+    "bedrock-protocol-packets-ng==0.0.9"
 ]
 authors = [
     { name = "Shock95", email = "" },

@@ -1,9 +1,10 @@
 from typing import Optional, Callable, TYPE_CHECKING
 
 from endstone import Player
-from endstone.inventory import ItemStack
+
+from endstone_inventoryui.menu.menu_transaction import MenuTransaction, MenuTransactionResult
 from endstone_inventoryui.manager.player_manager import find_session, create_session
-from endstone_inventoryui.menu.inventory import UIInventory
+from endstone_inventoryui.menu.inventory import MenuInventory
 from endstone_inventoryui.menu.menu_type import MenuType
 
 if TYPE_CHECKING:
@@ -15,9 +16,9 @@ class Menu:
     def __init__(self, type: MenuType, name: str = ""):
         self._name = name
         self._type = type
-        self._inventory: UIInventory = UIInventory(type.container_size,
-                                                   slot_updated=self._on_slot_changed)
-        self._listener: Optional[Callable[[Player, int, ItemStack, UIInventory], None]] = None
+        self._inventory: MenuInventory = MenuInventory(type.container_size,
+                                                       slot_updated=self._on_slot_changed)
+        self._listener: Optional[Callable[[MenuTransaction], MenuTransactionResult]] = None
         self._open_listener: Optional[Callable[[Player], None]] = None
         self._close_listener: Optional[Callable[[Player], None]] = None
         self._sessions: set['Session'] = set()
@@ -43,7 +44,7 @@ class Menu:
         """
         self._name = name
 
-    def set_listener(self, listener: Callable[[Player, int, ItemStack, UIInventory], None]):
+    def set_listener(self, listener: Callable[[MenuTransaction], MenuTransactionResult]):
         self._listener = listener
 
     def set_open_listener(self, listener: Callable[[Player], None]):

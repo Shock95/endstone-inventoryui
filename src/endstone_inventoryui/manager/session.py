@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING
 from bedrock_protocol.packets.types import BlockPos
 from endstone import Player
 
+from endstone_inventoryui.manager.container.container_manager import ContainerManager
 from endstone_inventoryui.menu.graphic.block_graphic import BlockGraphic
 from endstone_inventoryui.menu.graphic.block_pair_graphic import BlockPairGraphic
 from endstone_inventoryui.menu.graphic.graphic import Graphic
@@ -14,12 +15,11 @@ if TYPE_CHECKING:
 from endstone_inventoryui.network.inventory_content_packet import InventoryContentPacket
 from endstone_inventoryui.network.inventory_slot_packet import InventorySlotPacket
 from endstone_inventoryui.network.item_stack_wrapper import ItemStackWrapper
-from endstone_inventoryui.util.item_utils import is_air
 from endstone_inventoryui.util.utils import send_ack_packet, get_block_behind
 
 
 class Session:
-    CONTAINER_ID: int = 200
+    CONTAINER_ID: int = 2
 
     MAX_OPEN_ATTEMPTS: int = 10
 
@@ -38,6 +38,7 @@ class Session:
         self._menu: 'Menu | None' = None
         self.state: Session.State = self.State.NONE
         self.graphic: Graphic | None = None
+        self.container_manager: ContainerManager | None = None
         self.block_pos: list[BlockPos] = []
         self.open_attempts = 0
         self.ack_timestamp = 0
@@ -54,6 +55,7 @@ class Session:
         self._menu = value
         if value is not None:
             value._add_session(self)
+            self.container_manager: ContainerManager = ContainerManager(self.player, value.inventory)
 
     def send_menu(self):
         self.open_attempts = 0
@@ -82,19 +84,28 @@ class Session:
         pk = InventoryContentPacket(Session.CONTAINER_ID)
         for i in range(inventory.size):
             item_stack = inventory.get_item(i)
-            pk.items.append(ItemStackWrapper(0 if is_air(item_stack) else i + 1, item_stack))
-
+            stack_id = self.container_manager.assign_virtual_slot(i, item_stack)
+            pk.items.append(ItemStackWrapper(stack_id, item_stack))
         self.player.send_packet(pk.get_packet_id(), pk.serialize())
 
     def update_slot(self, slot: int):
         item = self.menu.inventory.get_item(slot)
-        pk = InventorySlotPacket(self.CONTAINER_ID, slot, item=ItemStackWrapper(0, item))
+        stack_id = self.container_manager.assign_virtual_slot(slot, item)
+        pk = InventorySlotPacket(self.CONTAINER_ID, slot=slot, item=ItemStackWrapper(stack_id, item))
         self.player.send_packet(pk.get_packet_id(), pk.serialize())
 
-    def close(self):
+    def close(self, sync_inventory: bool = False):
         self.state = self.State.CLOSING
         if self.graphic is not None:
             self.graphic.remove(self.player)
+        if self.container_manager is not None:
+            cursor_item = self.container_manager.cursor_container.get(0)
+            if cursor_item is not None:
+                self.player.inventory.add_item(cursor_item)
+                self.container_manager.cursor_container.set(0, None)
+            # fix stack id desync between client and BDS
+            if sync_inventory:
+                self.container_manager.sync_player_inventory()
 
     def update_state(self, state: State):
         self.state = state
