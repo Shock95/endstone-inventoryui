@@ -110,8 +110,15 @@ class EventListener:
                 for action in req_data.request_actions:
                     match action.action_type:
                         case ItemStackRequestActionType.Drop:
+                            source = action.action_data.source
+                            if self._is_virtual_slot(source):
+                                if not self._apply_menu_action(
+                                        player, session, menu, action, source, source,
+                                        responses, req_data.client_request_id,
+                                ):
+                                    return
                             session.container_manager.handle_drop(
-                                action.action_data.source,
+                                source,
                                 action.action_data.amount,
                             )
                         case ItemStackRequestActionType.Swap:
