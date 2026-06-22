@@ -5,7 +5,7 @@ from endstone.inventory import ItemStack
 from endstone_inventoryui.util.item_utils import clone_item
 
 
-class UIInventory:
+class MenuInventory:
     """
     Inventory used for menus
 

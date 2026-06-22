@@ -1,12 +1,16 @@
+from typing import TYPE_CHECKING
+
 from bedrock_protocol.packets.packet import BlockActorDataPacket, ContainerOpenPacket
 from bedrock_protocol.packets.types import BlockPos
 from endstone import Player
 from rapidnbt import CompoundTag
 
-from endstone_inventoryui.menu import Menu
+#from endstone_inventoryui.menu.menu import Menu
 from endstone_inventoryui.menu.graphic.graphic import Graphic
 from endstone_inventoryui.util.utils import send_block
 
+if TYPE_CHECKING:
+    from endstone_inventoryui.menu.menu import Menu
 
 class BlockGraphic(Graphic):
     menu: Menu

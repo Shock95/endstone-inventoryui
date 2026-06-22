@@ -18,8 +18,8 @@ class InventorySlotPacket(Packet):
         super().__init__()
         self.container_id = container_id
         self.slot = slot
-        self.container_name = container_name or FullContainerName()
-        self.storage = storage or ItemStackWrapper()
+        self.container_name = container_name
+        self.storage = storage
         self.item = item or ItemStackWrapper()
 
     def get_packet_id(self) -> MinecraftPacketIds:
@@ -31,9 +31,16 @@ class InventorySlotPacket(Packet):
     def write(self, stream: BinaryStream) -> None:
         stream.write_unsigned_varint(self.container_id)
         stream.write_unsigned_varint(self.slot)
-        self.container_name.write(stream)
-        self.storage.write_header(stream)
-        self.item.write(stream)
+
+        stream.write_bool(self.container_name is not None)
+        if self.container_name is not None:
+            self.container_name.write(stream)
+
+        stream.write_bool(self.storage is not None)
+        if self.storage is not None:
+            self.storage.write(stream)
+
+        self.item.write_descriptor(stream)
 
     def read(self, stream: ReadOnlyBinaryStream) -> None:
         pass
