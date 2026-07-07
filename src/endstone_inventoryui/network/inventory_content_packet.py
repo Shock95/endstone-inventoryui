@@ -30,9 +30,9 @@ class InventoryContentPacket(Packet):
         stream.write_unsigned_varint(self.container_id)
         stream.write_unsigned_varint(len(self.items))
         for item in self.items:
-            item.write(stream)
+            item.write_descriptor(stream)
         self.container_name.write(stream)
-        self.storage.write(stream)
+        self.storage.write_descriptor(stream)
 
     def read(self, stream: ReadOnlyBinaryStream) -> None:
         self.container_id = stream.get_unsigned_varint()
