@@ -5,6 +5,7 @@ from bedrock_protocol.packets.packet import (
     ItemRegistryPacket,
     ItemStackRequestPacket,
     ItemStackResponsePacket,
+    NetworkStackLatencyPacket,
 )
 from bedrock_protocol.packets.types.item_stack_response import ItemStackResponse
 from endstone.event import event_handler, EventPriority, PlayerQuitEvent, PacketReceiveEvent, PacketSendEvent
@@ -16,7 +17,6 @@ from .manager.container.item_stack_response_builder import ItemStackResponseBuil
 from .manager.player_manager import find_session, close_session
 from .menu.menu_transaction import MenuTransaction
 from .network.container_ui_ids import ContainerUIIds
-from .network.network_stack_latency_packet import NetworkStackLatencyPacket
 from .util.item_utils import all_item_data, add_item_data
 
 

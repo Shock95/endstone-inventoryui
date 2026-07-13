@@ -1,11 +1,9 @@
 import math
 import random
 
-from bedrock_protocol.packets.packet import UpdateBlockPacket
+from bedrock_protocol.packets.packet import UpdateBlockPacket, NetworkStackLatencyPacket
 from bedrock_protocol.packets.types import BlockPos
 from endstone import Player, Server
-
-from endstone_inventoryui.network.network_stack_latency_packet import NetworkStackLatencyPacket
 
 server: Server | None = None
 
