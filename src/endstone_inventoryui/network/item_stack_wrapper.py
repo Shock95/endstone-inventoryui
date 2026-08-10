@@ -44,17 +44,25 @@ class ItemStackWrapper:
         stream.write_unsigned_int(0)  # canDestroy count
 
     def write(self, stream: BinaryStream):
-        if self.write_header(stream):
-            has_net_id = self.stack_id != 0
-            stream.write_bool(has_net_id)
-            if has_net_id:
-                stream.write_varint(self.stack_id)
+        is_air = item_utils.is_air(self.item_stack)
+        has_net_id = self.stack_id != 0
 
-            stream.write_varint(0)  # BlockRuntimeID
+        stream.write_signed_short(self.data.item_id)
+        stream.write_unsigned_short(self.item_stack.amount)
+        stream.write_unsigned_varint(self.item_stack.data)
 
-            user_data = BinaryStream()
-            self.write_footer(user_data)
-            stream.write_bytes(user_data.copy_buffer())  # user data
+        stream.write_bool(has_net_id)
+        if has_net_id:
+            stream.write_varint(self.stack_id)
+
+        stream.write_unsigned_varint(0)  # BlockRuntimeID
+        if is_air:
+            stream.write_unsigned_varint(0)
+            return
+
+        user_data = BinaryStream()
+        self.write_footer(user_data)
+        stream.write_bytes(user_data.copy_buffer())  # user data
 
     def write_descriptor(self, stream: BinaryStream):
         is_air = item_utils.is_air(self.item_stack)
