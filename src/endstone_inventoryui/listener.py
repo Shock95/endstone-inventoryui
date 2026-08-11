@@ -170,6 +170,10 @@ class EventListener:
             case Session.State.GRAPHIC_DATA_SENT:
                 session.update_state(Session.State.GRAPHIC_DATA_RECEIVED)
             case Session.State.OPENING:
+                # The container will fail to open if the client isn't finished
+                # processing the graphic, so we resend the container open packet
+                # up to MAX_OPEN_ATTEMPTS times until it's processed.
+                # This is required for low-latency connections.
                 if session.open_attempts >= Session.MAX_OPEN_ATTEMPTS:
                     session.close()
                     return
@@ -229,6 +233,9 @@ class EventListener:
             case MinecraftPacketIds.ContainerClose:
                 self._handle_container_close(player, event.payload)
             case MinecraftPacketIds.PacketViolationWarning:
+                # When the client has a container open and a ContainerOpen packet is
+                # sent from the server, the client will send a packet violation.
+                # This is used as an indicator that the player has opened the menu.
                 self._handle_packet_violation_warning(player)
             case MinecraftPacketIds.ItemStackRequest:
                 if self._handle_item_stack_request_packet(player, event.payload):
@@ -236,6 +243,7 @@ class EventListener:
 
     @event_handler
     def on_packet_send(self, event: PacketSendEvent):
+        # Since Endstone doesn't expose numeric item IDs, we need to get them from the ItemRegistry packet sent by the server
         if event.packet_id == MinecraftPacketIds.ItemRegistryPacket and len(all_item_data()) == 0:
             pk = ItemRegistryPacket()
             pk.deserialize(event.payload)
