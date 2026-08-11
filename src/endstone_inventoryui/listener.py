@@ -1,5 +1,4 @@
 from bedrock_protocol.packets import MinecraftPacketIds
-from bedrock_protocol.packets.enums import ItemStackRequestActionType
 from bedrock_protocol.packets.packet import (
     ContainerClosePacket,
     ItemRegistryPacket,
@@ -7,6 +6,7 @@ from bedrock_protocol.packets.packet import (
     ItemStackResponsePacket,
     NetworkStackLatencyPacket,
 )
+from bedrock_protocol.packets.types.item_stack_request import DropAction, SwapAction, TakeAction, PlaceAction
 from bedrock_protocol.packets.types.item_stack_response import ItemStackResponse
 from endstone.event import event_handler, EventPriority, PlayerQuitEvent, PacketReceiveEvent, PacketSendEvent
 from endstone.inventory import ItemStack
@@ -53,7 +53,7 @@ class EventListener:
             slot=slot,
             item_clicked=item_clicked,
             item_clicked_with=item_clicked_with,
-            action_type=action.action_type,
+            action_type=action.type,
             source=source,
             destination=destination,
         )
@@ -104,45 +104,45 @@ class EventListener:
 
     def _handle_item_stack_request(self, player, session, menu, pk: ItemStackRequestPacket) -> None:
         responses: list[ItemStackResponse] = []
-        for req_data in pk.request.request_data:
+        for req_data in pk.requests:
             session.container_manager.begin_request(req_data.client_request_id)
             try:
-                for action in req_data.request_actions:
-                    match action.action_type:
-                        case ItemStackRequestActionType.Drop:
-                            source = action.action_data.source
+                for action in req_data.actions:
+                    match action:
+                        case DropAction():
+                            source = action.source
                             if self._is_virtual_slot(source):
                                 if not self._apply_menu_action(
-                                        player, session, menu, action, source, source,
-                                        responses, req_data.client_request_id,
+                                    player, session, menu, action.type, source, source,
+                                    responses, req_data.client_request_id,
                                 ):
                                     return
                             session.container_manager.handle_drop(
                                 source,
-                                action.action_data.amount,
+                                action.amount,
                             )
-                        case ItemStackRequestActionType.Swap:
-                            source = action.action_data.source
-                            destination = action.action_data.distination
+                        case SwapAction():
+                            source = action.source
+                            destination = action.destination
                             if not self._apply_menu_action(
                                 player, session, menu, action, source, destination,
                                 responses, req_data.client_request_id,
                             ):
                                 return
                             session.container_manager.handle_swap(source, destination)
-                        case ItemStackRequestActionType.Take | ItemStackRequestActionType.Place:
-                            source = action.action_data.source
-                            destination = action.action_data.distination
+                        case TakeAction() | PlaceAction():
+                            source = action.source
+                            destination = action.destination
                             if not self._apply_menu_action(
                                 player, session, menu, action, source, destination,
                                 responses, req_data.client_request_id,
                             ):
                                 return
                             session.container_manager.transfer_items(
-                                source, destination, action.action_data.amount,
+                                source, destination, action.amount,
                             )
                         case _:
-                            raise ValueError(f"Unsupported item stack request action: {action.action_type}")
+                            raise ValueError(f"Unsupported item stack request action: {action.type}")
 
                 responses.append(session.container_manager.commit_transaction())
             except Exception as error:
