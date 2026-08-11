@@ -104,9 +104,11 @@ class EventListener:
 
     def _handle_item_stack_request(self, player, session, menu, pk: ItemStackRequestPacket) -> None:
         responses: list[ItemStackResponse] = []
+        if len(pk.requests) >= 100: return None
         for req_data in pk.requests:
             session.container_manager.begin_request(req_data.client_request_id)
             try:
+                if len(req_data.actions) > 1: return None
                 for action in req_data.actions:
                     match action:
                         case DropAction():
