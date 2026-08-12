@@ -2,6 +2,7 @@ from bedrock_protocol.packets.types import ItemData
 from bstream import BinaryStream
 from endstone.inventory import ItemStack
 from endstone_inventoryui.util import item_utils
+from endstone_inventoryui.util.nbt_serializer import write_nbt
 
 
 class ItemStackWrapper:
@@ -19,13 +20,13 @@ class ItemStackWrapper:
         self.data: ItemData = data
 
     def write_extra_data(self, stream: BinaryStream):
-        """Builds the extra data buffer (NBT + canPlaceOn + canDestroy)"""
-        item_meta = self.item_stack.item_meta
-        tag = item_utils.build_tag(item_meta)
-        if not tag.empty():
+        """Writes the extra data buffer (NBT + canPlaceOn + canDestroy)"""
+        tag = self.item_stack.nbt
+        is_tag_empty = len(tag) == 0
+        if not is_tag_empty:
             stream.write_signed_short(-1)  # nbt length
             stream.write_byte(1)  # nbt version?
-            stream.write_raw_bytes(tag.to_binary_nbt())
+            stream.write_raw_bytes(write_nbt(tag))
         else:
             stream.write_signed_short(0)  # no nbt
 
