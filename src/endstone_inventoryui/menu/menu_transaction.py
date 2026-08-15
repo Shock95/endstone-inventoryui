@@ -23,52 +23,15 @@ class MenuTransactionResult:
         return self.type == MenuTransactionResultType.DISCARD
 
 
+@dataclass(frozen=True)
 class MenuTransaction:
-    def __init__(
-        self,
-        player: Player,
-        slot: int,
-        item_clicked: ItemStack,
-        item_clicked_with: ItemStack,
-        action_type: ItemStackRequestActionType,
-        source: ItemStackRequestSlotInfo,
-        destination: ItemStackRequestSlotInfo,
-    ):
-        self._player = player
-        self._slot = slot
-        self._item_clicked = item_clicked
-        self._item_clicked_with = item_clicked_with
-        self._action_type = action_type
-        self._source = source
-        self._destination = destination
-
-    @property
-    def player(self) -> Player:
-        return self._player
-
-    @property
-    def slot(self) -> int:
-        return self._slot
-
-    @property
-    def item_clicked(self) -> ItemStack:
-        return self._item_clicked
-
-    @property
-    def item_clicked_with(self) -> ItemStack:
-        return self._item_clicked_with
-
-    @property
-    def action_type(self) -> ItemStackRequestActionType:
-        return self._action_type
-
-    @property
-    def source(self) -> ItemStackRequestSlotInfo:
-        return self._source
-
-    @property
-    def destination(self) -> ItemStackRequestSlotInfo:
-        return self._destination
+    player: Player
+    slot: int
+    item_clicked: ItemStack
+    item_clicked_with: ItemStack
+    action_type: ItemStackRequestActionType
+    source: ItemStackRequestSlotInfo
+    destination: ItemStackRequestSlotInfo
 
     def proceed(self) -> MenuTransactionResult:
         return MenuTransactionResult(MenuTransactionResultType.CONTINUE)

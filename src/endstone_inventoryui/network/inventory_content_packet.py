@@ -1,3 +1,5 @@
+from dataclasses import field, dataclass
+
 from bedrock_protocol.packets.minecraft_packet_ids import MinecraftPacketIds
 from bedrock_protocol.packets.packet.packet_base import Packet
 from bedrock_protocol.packets.types import FullContainerName
@@ -5,20 +7,12 @@ from bstream import BinaryStream, ReadOnlyBinaryStream
 
 from endstone_inventoryui.network.item_stack_wrapper import ItemStackWrapper
 
-
+@dataclass
 class InventoryContentPacket(Packet):
-
-    def __init__(self,
-                 container_id: int = 0,
-                 items: list[ItemStackWrapper] | None = None,
-                 container_name: FullContainerName | None = None,
-                 storage: ItemStackWrapper | None = None
-                 ):
-        super().__init__()
-        self.container_id = container_id
-        self.items = items or []
-        self.container_name = container_name or FullContainerName()
-        self.storage = storage or ItemStackWrapper()
+    container_id: int = 0
+    items: list[ItemStackWrapper] = field(default_factory=list)
+    container_name: FullContainerName = field(default_factory=FullContainerName)
+    storage: ItemStackWrapper = field(default_factory=ItemStackWrapper)
 
     def get_packet_id(self) -> MinecraftPacketIds:
         return MinecraftPacketIds.InventoryContent
