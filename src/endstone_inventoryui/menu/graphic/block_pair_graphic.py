@@ -1,3 +1,4 @@
+from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from bedrock_protocol.packets.packet import BlockActorDataPacket, ContainerOpenPacket

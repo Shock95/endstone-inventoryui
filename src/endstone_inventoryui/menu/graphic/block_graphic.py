@@ -1,11 +1,12 @@
+from __future__ import annotations
 from typing import TYPE_CHECKING
+from dataclasses import dataclass
 
 from bedrock_protocol.packets.packet import BlockActorDataPacket, ContainerOpenPacket
 from bedrock_protocol.packets.types import BlockPos
 from endstone import Player
 from rapidnbt import CompoundTag
 
-#from endstone_inventoryui.menu.menu import Menu
 from endstone_inventoryui.menu.graphic.graphic import Graphic
 from endstone_inventoryui.util.utils import send_block
 

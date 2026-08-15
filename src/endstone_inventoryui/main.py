@@ -5,7 +5,7 @@ from endstone_inventoryui.listener import EventListener
 
 class InventoryUIPlugin(Plugin):
     prefix = "InventoryUI"
-    api_version = "0.6"
+    api_version = "0.11"
     load = "POSTWORLD"
 
     def on_enable(self) -> None:
